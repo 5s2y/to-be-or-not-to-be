@@ -1,0 +1,690 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sống hay không sống...</title>
+    <!-- Tải Font Cinzel cho tiêu đề và Open Sans cho nội dung -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Open+Sans:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap'); /* THÊM FONT PLAYFAIR DISPLAY */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;500&display=swap'); /* Font cho Dialogue */
+        
+        /* Cấu hình Tailwind cho font tùy chỉnh */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background-color: #000;
+            color: #f0f0ff;
+            font-family: 'Open Sans', sans-serif;
+            overflow-x: hidden;
+            /* ĐÃ THAY THẾ ảnh nền Placeholder bằng màu đen tĩnh */
+            background-color: #060609;
+        }
+        
+        .overlay {
+            /* Lớp phủ tối, tăng tính kịch */
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95), rgba(0,0,0,0.99));
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* --- Section 1: Title 3D (Không đổi) --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            /* Sử dụng ảnh nền tối/đen cho phần hero */
+            background: #000;
+        }
+
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(3rem, 8vw, 10rem);
+            text-shadow:
+                0 0 15px rgba(255,255,255,0.5),
+                0 0 40px rgba(120,150,255,0.4),
+                0 0 80px rgba(80,100,255,0.3);
+            opacity: 0;
+            transform: perspective(700px) rotateY(15deg) translateY(20px);
+            animation:
+                fadeIn 2.5s ease forwards,
+                float 6s ease-in-out infinite alternate;
+            letter-spacing: 0.1em;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .hero .author-credit {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1rem, 3vw, 2rem); 
+            color: #d0d0ff; 
+            letter-spacing: 0.2em;
+            /* ĐÃ BỎ text-transform: uppercase để tránh viết hoa không mong muốn */
+            /* text-transform: uppercase; */ 
+            opacity: 0;
+            transform: translateY(20px) scale(0.8);
+            animation:
+                authorFadeIn 3s ease forwards 1s,
+                authorFloat 7s ease-in-out infinite alternate 1s;
+        }
+        
+        /* Giữ keyframes cũ */
+        @keyframes fadeIn {
+            from { opacity: 0; filter: blur(8px); transform: perspective(700px) rotateY(15deg) translateY(40px); }
+            to { opacity: 1; filter: blur(0); transform: perspective(700px) rotateY(10deg) translateY(0); }
+        }
+        @keyframes float {
+            0% { transform: perspective(700px) rotateY(10deg) translateY(0); }
+            100% { transform: perspective(700px) rotateY(-10deg) translateY(-10px); }
+        }
+        @keyframes authorFadeIn {
+            from { opacity: 0; filter: blur(5px); transform: translateY(30px) scale(0.7); }
+            to { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+        }
+        @keyframes authorFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
+        }
+
+        /* --- Global: Hiệu ứng cuộn Reveal (Không đổi) --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth transition */
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Section 2: Intro (Khái Quát) --- */
+        .intro {
+            min-height: 100vh;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center; 
+            justify-content: center;
+            padding: 6rem 10%;
+            gap: 3rem;
+            background: linear-gradient(to bottom, #0b0b12, #060609);
+        }
+
+        .intro-text {
+            flex: 1 1 400px;
+            max-width: 600px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            order: 1; /* Text ở bên trái */
+        }
+        
+        /* CHỈNH CSS CHO ẢNH SHAKESPEARE */
+        .intro img {
+            /* Kích thước vừa phải cho ảnh chân dung */
+            width: 300px; 
+            height: auto;
+            border-radius: 12px;
+            /* Hiệu ứng cũ đã được loại bỏ, thay bằng box-shadow cổ điển */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), 0 0 40px rgba(170, 176, 255, 0.1); 
+            transition: transform 1.2s ease, opacity 1.2s ease;
+            order: 2; /* Ảnh ở bên phải */
+        }
+
+
+        /* --- Section 3: Quotes --- */
+        .quotes {
+            background-color: transparent;
+            padding: 8rem 10%;
+            text-align: center;
+        }
+
+        .quote-box {
+            position: relative;
+            background: rgba(10, 10, 15, 0.8);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 0 40px rgba(100, 120, 255, 0.1);
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif; /* ĐÃ THAY ĐỔI FONT */
+            font-style: italic;
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: #e0e0ff;
+            line-height: 1.6;
+            /* Đảm bảo quote-text không bị viết hoa bằng CSS */
+            text-transform: none; 
+        }
+
+        .quote-author {
+            margin-top: 1rem;
+            display: block;
+            font-weight: 600;
+            color: #aab0ff;
+        }
+        
+        /* --- Section 4: Dialogue Box (Giống Messenger/Zalo) --- */
+        .dialogue-section {
+            padding: 4rem 5%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            min-height: 500px;
+            background: #101015; /* Nền tối hơn */
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 80px rgba(80,100,255,0.15);
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            animation: messageFadeIn 0.8s ease-out forwards;
+            opacity: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .message:hover {
+            transform: scale(1.02);
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #aab0ff;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .bubble {
+            max-width: 80%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 18px;
+            font-size: 1rem;
+            line-height: 1.4;
+            position: relative;
+            font-family: 'Open Sans', sans-serif;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Hamlet (Left - Message Sent) */
+        .hamlet .bubble {
+            margin-left: 10px;
+            background-color: #33334d; /* Màu tối, u uất */
+            color: #e0e0ff;
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Ophelia (Right - Message Received) */
+        .ophelia {
+            justify-content: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .ophelia .bubble {
+            margin-right: 10px;
+            background-color: #555577; /* Màu sáng hơn, nữ tính */
+            color: #f0f0ff;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ophelia .avatar {
+            border: 2px solid #ffaaaf; /* Màu viền hồng nhẹ cho Ophelia */
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-left: 60px;
+            color: #888;
+            font-style: italic;
+            height: 30px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .typing-indicator.visible {
+            opacity: 1;
+        }
+
+        @keyframes messageFadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- THÊM CHUYỂN ĐỘNG PHONG PHÚ (Reveal khi cuộn vào view, rút lại khi out of view) --- */
+        .reveal-slide-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal-slide-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .glow-rise {
+        opacity: 0;
+        transform: translateY(40px);
+        text-shadow: 0 0 0 rgba(255,255,255,0);
+        transition: all 1.3s ease;
+        }
+        .glow-rise.visible {
+        opacity: 1;
+        transform: translateY(0);
+        text-shadow: 0 0 20px rgba(200,200,255,0.6);
+        }
+
+        .reveal-rotate {
+            opacity: 0;
+            transform: rotate(-10deg) translateY(30px);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal-rotate.visible {
+            opacity: 1;
+            transform: rotate(0) translateY(0);
+        }
+
+        /* --- THÊM SECTION MỚI (Phân tích, Bi kịch, v.v.) --- */
+        .analysis-section {
+            padding: 6rem 10%;
+            background: linear-gradient(to bottom, #060609, #0b0b12);
+            min-height: 100vh;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: rgba(10, 10, 15, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .table th, .table td {
+            padding: 1.2rem;
+            border: 1px solid #333;
+            text-align: left;
+        }
+        .table th {
+            background: #1a1a2e;
+            color: #aab0ff;
+            font-weight: 600;
+        }
+        .modern-section {
+            padding: 6rem 10%;
+            background: rgba(0,0,0,0.85);
+            min-height: 100vh;
+        }
+        .conclusion-section {
+            padding: 10rem 5%;
+            text-align: center;
+            background: #000;
+            min-height: 20vh;
+        }
+        .conclusion-section h1 {
+            font-size: clamp(3rem, 6vw, 8rem);
+            color: #d0d0ff;
+        }
+        .final-section {
+          padding: 10%;
+          text-align: center;
+          background: #191929;
+          min-height: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Lớp phủ cho toàn trang -->
+    <div class="overlay"></div>
+
+    <!-- Section 1: Hero -->
+    <section class="hero">
+        <h1>SỐNG HAY KHÔNG SỐNG...<br>ĐÓ LÀ VẤN ĐỀ</h1>
+        <p class="author-credit">NHÓM 8 CHUYÊN ĐỀ VĂN 11A1</p> 
+    </section>
+
+    <!-- Section 2: Intro (Khái Quát) -->
+       <section id="intro" class="intro bg-black/90">
+    <div class="intro-text reveal">
+      <p><span>Bạn biết không?</span> “Hamlet” không chỉ là một vở bi kịch của Shakespeare, mà còn là tấm gương soi tâm hồn con người.  
+      Câu hỏi *“Sống hay không sống”* không chỉ dành cho hoàng tử xứ Đan Mạch, mà cho tất cả chúng ta — những kẻ đang vùng vẫy trong bóng tối của chính mình.  
+      Đây không chỉ là câu chuyện về thù hận hay định mệnh, mà là hành trình đi tìm ý nghĩa tồn tại trong thế giới đầy nghi hoặc.</p>
+    </div>
+    
+    <img class="reveal" src="https://cdn.kobo.com/book-images/9531a65f-1fdd-4271-b42e-4f9c8d5781f3/1200/1200/False/hamlet-prince-of-denmark-illustrated-annotated.jpg" alt="Hamlet cover">
+  </section>
+    <section id="intro" class="intro bg-black/90">
+        <div class="intro-text reveal">
+            <!-- ĐÃ CHUYỂN THÀNH CHỮ THƯỜNG -->
+            <h2 class="text-3xl font-cinzel mb-4 text-[#aab0ff] font-bold">Khái quát về bi kịch</h2>
+            <p class="mb-4"><span>William Shakespeare (1564-1616)</span> là nhà viết kịch vĩ đại người Anh, được mệnh danh là "thiên tài sân khấu", "biển cả của ngôn ngữ Anh". Các tác phẩm của ông có giá trị nhân văn sâu sắc, phản ánh số phận con người, những bi kịch và khát vọng sống mãnh liệt.</p>
+            <p>Đoạn trích <strong>“Sống hay không sống”</strong> (To be or not to be) nằm trong vở kịch <strong>"Hamlet"</strong> – độc thoại nội tâm thể hiện sự giằng co giữa ý chí sống và nỗi tuyệt vọng, qua đó bộc lộ chiều sâu tư tưởng nhân văn: con người luôn trăn trở tìm ý nghĩa của sự tồn tại giữa thực tại đau khổ.</p>
+        </div>
+        <!-- ẢNH CHÂN DUNG SHAKESPEARE -->
+        <img class="reveal" src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Shakespeare.jpg" alt="Ảnh chân dung William Shakespeare" title="Cha đẻ của Hamlet">
+    </section>
+    
+    <!-- Section 3: Trích Dẫn Nổi Bật (Quotes) -->
+    <section id="quotes" class="quotes">
+        <!-- ĐÃ CHUYỂN THÀNH CHỮ THƯỜNG -->
+        <h2 class="text-4xl font-[Cinzel] mb-12 text-[#d0d0ff] reveal">NHỮNG LỜI THỔ LỘ U UẤT</h2>
+        
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Trích dẫn 1: Sự sống và Cái chết -->
+            <div class="quote-box reveal-slide-left">
+                <!-- Nội dung trích dẫn. Font Cinzel có thể hiển thị một số chữ hoa nhưng không áp đặt bằng CSS -->
+                <p class="quote-text">"Ai chịu nổi roi vọt của thời gian, sự ngạo mạn của kẻ quyền thế, nỗi đau của tình yêu bị khinh rẻ…"</p>
+                <span class="quote-author">— Hamlet</span>
+            </div>
+
+            <!-- Trích dẫn 2: Lương tâm Claudius -->
+            <div class="quote-box reveal-slide-left" style="animation-delay: 0.2s;">
+                <!-- Nội dung trích dẫn -->
+                <p class="quote-text">"Ôi, gánh nặng của tội ác! Đôi má của gái hồng lâu, rực rỡ vì son tô phấn điểm, cũng không thể xấu xa hơn hành động của ta được điểm phấn tô son bằng những lời hoa gấm mĩ miều."</p>
+                <span class="quote-author text-[#ffaaaf]">— Vua Claudius (Độc thoại lương tâm)</span>
+            </div>
+            
+            <!-- Trích dẫn 3: Sự giả dối -->
+            <div class="quote-box reveal-slide-left" style="animation-delay: 0.4s;">
+                <!-- Nội dung trích dẫn -->
+                <p class="quote-text">"Đời vẫn thường chê trách rằng ta khoác cái vẻ trầm mặc thành kính và bộ điệu chân tu nhiều khi cũng đường mật đánh lừa được cả ma quỷ."</p>
+                <span class="quote-author text-[#aaffaa]">— Polonius (Chỉ đạo Ophelia)</span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Section 4: Bảng Hội Thoại (Tương tác) -->
+    <section id="dialogue" class="dialogue-section">
+        <!-- ĐÃ CHUYỂN THÀNH CHỮ THƯỜNG -->
+        <h2 class="text-4xl font-[Cinzel] mb-8 text-[#d0d0ff] reveal-rotate">MÀN KỊCH GIỮA HAMLET VÀ OPHELIA</h2>
+        <p class="text-center mb-6 text-gray-400 reveal-rotate">Cuộc đối thoại thể hiện sự giằng xé trong tâm hồn Hamlet.</p>
+
+        <div class="chat-container reveal-rotate">
+            <!-- Khu vực hiện thị tin nhắn -->
+            <div id="messages">
+                <!-- Messages will be injected here by JavaScript -->
+            </div>
+            
+            <!-- Khu vực soạn tin (Typing Indicator) -->
+            <div id="typing-box" class="typing-indicator">
+                <!-- Vị trí này sử dụng placeholder cũ, không cần thay đổi vì nó sẽ bị ẩn đi nhanh chóng -->
+                <img class="avatar" src="https://www.lookandlearn.com/history-images/preview/XD/XD160/XD160290_Ophelia-a-character-in-Hamlet.jpg" alt="Ophelia Avatar" style="width: 25px; height: 25px; margin-right: 10px;">
+                Ophelia đang soạn tin...
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Tóm tắt & Nhận xét (Mới) -->
+    <section id="summary" class="analysis-section">
+        <h2 class="reveal glow-rise text-4xl font-[Cinzel] mb-8 text-[#d8d0ff]">TÓM TẮT VÀ NHẬN XÉT</h2>
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+    <div class="md:w-1/2 space-y-4">
+        <p class="reveal glow-rise">Claudius và Gertrude bàn về hành vi của Hamlet cùng Rosencrantz và Guildenstern. Họ không thể tìm ra nguyên nhân khiến Hamlet điên loạn. Claudius và Polonius dàn xếp để theo dõi Hamlet qua cuộc đối thoại giữa chàng và Ophelia. Hamlet bước vào, trầm ngâm và đau khổ tự vấn về việc có nên tự tử để chấm dứt nỗi đau của trải nghiệm, những đau khổ của cuộc sống là đến nỗi không ai muốn chịu đựng chúng.</p>
+        <p class="reveal glow-rise">Ophelia nói với Hamlet rằng nàng muốn trả lại những vật chứng tình yêu mà Hamlet đã trao cho nàng. Chàng từ chối, rồi than thở về sự gian dối của sắc đẹp, và tuyên bố vừa yêu Ophelia một lần vừa chưa bao giờ yêu nàng. Bình luận một cách cay đắng về sự khốn khổ của loài người. Những lời đáp đó khiến Ophelia cảm giác bị tổn thương tâm lý nặng nề.</p>
+        <p class="reveal glow-rise">Đoạn trích trên đã nói lên bản chất phức tạp của con người, với những khát vọng, nỗi sợ hãi, xung đột nội tâm và vấn đề. Trong cuộc đối thoại với Ophelia, Hamlet đã trải qua những giằng xé trong tâm hồn, nhận thức được mối quan hệ giữa nhan sắc và đức hạnh trong cuộc sống điên loạn. Từ đó, nêu lên những suy ngẫm về bản tính của con người, những trăn trở, lo âu của con người trong cuộc sống đầy gian nan, vất vả, những rủi ro vẫn đang thường trực xảy ra, và có sức chịu đựng hay không để vùng lên phá tan nhà ngục để mang lại sự tự do cho con người.</p>
+        </div>
+
+    <div class="md:w-1/2 flex justify-center">
+        <img class="reveal-scale w-full max-w-md mx-auto mt-8 rounded-xl" src="https://upload.wikimedia.org/wikipedia/commons/d/d8/Eug%C3%A8ne_Delacroix%2C_Hamlet_and_Horatio_in_the_Graveyard.JPG" alt="Hamlet và Horatio trong nghĩa địa">
+    </section>
+
+    <!-- Section 6: Ý nghĩa lời thoại trước khi Hamlet xuất hiện (Mới - Với bảng) -->
+    <section id="dialogue-meaning" class="analysis-section">
+        <h2 class="text-4xl font-[Cinzel] mb-8 text-[#d0d0ff] reveal-slide-left">XÁC ĐỊNH Ý NGHĨA LỜI THOẠI TRƯỚC KHI HAMLET XUẤT HIỆN</h2>
+        <p class="reveal-slide-left">Ý nghĩa của lời thoại các nhân vật trước khi Hamlet xuất hiện được chia ra làm 3 khía cạnh: Dò xét và nghi ngờ; Gài bẫy và rình rập; Tha hóa và bi kịch lương tâm.</p>
+
+        <h3 class="text-2xl font-[Cinzel] mt-6 mb-4 text-[#aab0ff] reveal-slide-left">1. DÒ XÉT VÀ NGHI NGỜ</h3>
+        <table class="table reveal-slide-left">
+            <tr><th>Nhân vật</th><th>Lời thoại</th><th>Ý nghĩa</th></tr>
+            <tr><td>Vua Claudius (Hỏi Rô-den-craq và Ghin-đơn-xtơn)</td><td>"Thế trong khi chuyện trò cùng thái tử, các khanh lại không lựa được cơ hội nào để tìm hiểu tại sao người rối loạn tâm thần, để cho chuỗi ngày xanh êm đẹp bị tan nát vì những cơn điên dữ dội, hiểm nghèo hay sao?"</td><td>Thể hiện sự quan tâm giả tạo và mục đích dò xét rõ ràng. Vua không tin Hamlet điên vì tình yêu mà nghi ngờ đó là sự "rối loạn tâm thần" nguy hiểm đến ngai vàng.</td></tr>
+            <tr><td>Rô-den-craq (Trả lời Vua)</td><td>"Người cử đánh trống lảng bằng những cơn điên khôn khéo, mỗi khi chúng thần tìm cách gợi người tỏ bày thực trạng tâm hồn mình."</td><td>Xác nhận việc Hamlet giả điên ("cơn điên khôn khéo") và biết rõ mình đang bị theo dõi, nên chàng cố ý né tránh sự thăm dò.</td></tr>
+        </table>
+
+        <h3 class="text-2xl font-[Cinzel] mt-6 mb-4 text-[#aab0ff] reveal-slide-left">2. GÀI BẪY VÀ RÌNH RẬP</h3>
+        <table class="table reveal-slide-left">
+            <tr><th>Nhân vật</th><th>Lời thoại</th><th>Ý nghĩa</th></tr>
+            <tr><td>Vua Claudius (Nói với Hoàng hậu và Polonius)</td><td>"Trẫm đã ra mật lệnh cho tìm Hăm-lét tới đây, làm như thể tình cờ bắt gặp Ô-phê-li-a ở nơi này. Trẫm sẽ đích thân cùng tướng công Pô-lô-ni-út, như hai thám tử hợp pháp, ngồi vào một nơi kín, thấy hết mà không ai nhìn thấy mình, để tận mắt quan sát mọi cử chỉ của y qua cuộc gặp gỡ, xem có phải chính bệnh tương tư là nguyên nhân làm y quẫn trí chăng."</td><td>Đây là bằng chứng rõ nhất về âm mưu rình rập. Vua và Polonius không phải đang giúp đỡ Hamlet mà đang gài bẫy để tìm ra sự thật nhằm loại trừ mối nguy hiểm. Họ hành động như "hai thám tử hợp pháp" nhưng lại nấp vào "một nơi kín, thấy hết mà không ai nhìn thấy mình", thể hiện sự thâm độc.</td></tr>
+            <tr><td>Pô-lô-ni-út (Nói với Ô-phê-li-a)</td><td>"Con hãy cầm cuốn sách này và đọc đi. Như thế mới thêm vẻ tự nhiên trong lúc cô đơn. Đời vẫn thường chê trách rằng ta khoác cái vẻ trầm mặc thành kính và bộ điệu chân tu nhiều khi cũng đường mật đánh lừa được cả ma quỷ."</td><td>Lộ rõ sự toan tính và giả dối của Polonius. Ông ta chỉ đạo Ophelia tạo "vẻ tự nhiên" (cầm sách đọc), đồng thời thừa nhận thói quen của triều đình là "khoác cái vẻ trầm mặc thành kính" để đánh lừa người khác.</td></tr>
+        </table>
+
+        <h3 class="text-2xl font-[Cinzel] mt-6 mb-4 text-[#aab0ff] reveal-slide-left">3. THA HÓA VÀ BI KỊCH LƯƠNG TÂM</h3>
+        <table class="table reveal-slide-left">
+            <tr><th>Nhân vật</th><th>Lời thoại</th><th>Ý nghĩa</th></tr>
+            <tr><td>Vua Claudius (Lời độc thoại ngắn sau lời Polonius)</td><td>"Ôi, đúng quá thật! Lời nói như roi quất vào lương tâm ta... Đôi má của gái hồng lâu, rực rỡ vì son tô phấn điểm, cũng không thể xấu xa hơn hành động của ta được điểm phấn tô son bằng những lời hoa gấm mĩ miều. Ôi, gánh nặng của tội ác!"</td><td>Đây là chi tiết đắt giá, làm lộ rõ tội ác của Vua. Lời của Polonius đã vô tình quất vào "lương tâm" của Claudius, khiến hắn tự so sánh hành động của mình với sự giả tạo của gái hồng lâu. Chi tiết này xác nhận Claudius là kẻ tội phạm thực sự, làm tăng thêm sự chính đáng cho sứ mệnh trả thù của Hamlet.</td></tr>
+        </table>
+
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+    <div class="md:w-1/2 space-y-4">
+        <div class="reveal-slide-left mt-8">
+        <p style="color:#aab0ff; font-weight:bold;">Kết luận:</p>
+       <p>
+        Các lời thoại này có ý nghĩa tạo lập xung đột kịch bằng cách đặt một người trí thức cao quý (Hamlet)
+        vào một môi trường thù địch và giả dối tột độ. Điều này lý giải tại sao ngay sau đó, Hamlet lại xuất hiện
+         với lời độc thoại "Sống hay không sống", vì chàng đã bị dồn vào đường cùng và phải đối mặt với bi kịch
+         lựa chọn trong một thế giới đã bị tha hóa.
+        </p>
+        </div>
+
+        </div>
+
+    <div class="md:w-1/2 flex justify-center">
+        <img class="reveal-scale w-full max-w-md mx-auto mt-8 rounded-xl" src="data:image/jpeg;base64,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" alt="Hoàng tử Hamlet">
+    </section>
+
+    <!-- Section 7: Phân tích nhân vật Hamlet (Mới) -->
+    <section id="character-analysis" class="analysis-section">
+        <h2 class="text-4xl font-[Cinzel] mb-8 text-[#d0d0ff] reveal-rotate">PHÂN TÍCH NHÂN VẬT</h2>
+        <h3 class="text-2xl font-[Cinzel] mb-4 text-[#aab0ff] reveal-rotate">HOÀN CẢNH CỦA HAMLET</h3>
+        <p class="reveal-rotate">Hamlet là hoàng tử mất cha, mẹ lại vội tái giá với chính chú ruột của mình – Claudius, kẻ đã âm mưu giết vua cha để đoạt ngôi.</p>
+        <p class="reveal-rotate">Anh đau đớn, phẫn nộ, nhưng cũng bị giằng xé giữa hành động và lý trí, giữa báo thù và những suy tư triết lý về sự sống, cái chết, và lẽ tồn tại của con người.</p>
+
+        <h3 class="text-2xl font-[Cinzel] mt-6 mb-4 text-[#aab0ff] reveal-rotate">PHÂN TÍCH TÂM TRẠNG VÀ TÍNH CÁCH HAMLET QUA ĐOẠN “SỐNG HAY KHÔNG SỐNG”</h3>
+        <table class="table reveal-rotate">
+            <tr><th>Khía cạnh</th><th>Phân tích</th></tr>
+            <tr><td>Tư tưởng triết lý sâu sắc về sự sống và cái chết</td><td>Câu mở đầu: “Sống hay không sống – đó mới là vấn đề.” Hamlet không chỉ hỏi “sống hay chết”, mà đang đặt ra câu hỏi về ý nghĩa của sự sống. Anh suy nghĩ: sống để chịu đựng bao đau khổ, bất công, hay chết để giải thoát khỏi khổ đau đó? → Thể hiện tâm hồn tri thức, sâu sắc, luôn chất chứa suy tư triết học về con người và kiếp người.</td></tr>
+            <tr><td>Sự giằng xé nội tâm dữ dội</td><td>Hamlet thấy đời là bể khổ: “Ai chịu nổi roi vọt của thời gian, sự ngạo mạn của kẻ quyền thế, nỗi đau của tình yêu bị khinh rẻ…” → Anh thấy xã hội bất công, con người yếu đuối, lòng người giả dối. → Nhưng khi nghĩ đến cái chết – anh sợ hãi điều vô định sau cái chết, “xứ sở chưa ai trở lại” → nỗi sợ hãi bản năng của con người. => Hamlet đấu tranh giữa bản năng và lý trí, giữa “muốn chết để thoát” và “sợ hãi điều chưa biết”.</td></tr>
+            <tr><td>Sự bế tắc và bất lực</td><td>Dù căm hận tội ác, Hamlet vẫn không thể hành động ngay. Chính nỗi đa nghi, suy tư quá mức khiến anh chần chừ, bị giam cầm trong chính tâm trí mình. → Đây là bi kịch của con người trí thức thời Phục Hưng: hiểu rõ cái xấu nhưng không đủ sức vượt lên hành động.</td></tr>
+            <tr><td>Tâm hồn nhân văn và ý thức về phẩm giá con người</td><td>Hamlet không hành động mù quáng. Anh muốn tìm chân lý, bảo vệ lẽ phải, nhưng cũng tôn trọng sự sống. Chính vì biết quý trọng sự sống, anh mới đau đớn trước ý nghĩ phải chết, phải giết người. → Điều này cho thấy Hamlet là con người có lương tri, có nhân tính, không phải kẻ hiếu chiến hay tàn bạo.</td></tr>
+        </table>
+        <p class="reveal-rotate mt-8">Kết luận: Hamlet trong đoạn “Sống hay không sống – đó mới là vấn đề” là hình tượng tiêu biểu cho con người thời Phục Hưng đang thức tỉnh ý thức cá nhân, vừa khát vọng công lý, vừa bế tắc giữa thực tại tăm tối. Anh là biểu tượng của trí tuệ, nhân văn và bi kịch của con người tư tưởng – người nhìn thấy chân lý nhưng không thoát khỏi nỗi đau của chính mình.</p>
+    </section>
+
+    <!-- Section 8: Tính bi kịch (Mới) -->
+    <section id="tragedy" class="analysis-section">
+        <h2 class="text-4xl font-[Cinzel] mb-8 text-[#d0d0ff] reveal-scale">Tính bi kịch</h2>
+        <h3 class="text-2xl font-[Cinzel] mb-4 text-[#aab0ff] reveal-scale">1. TÍNH CHẤT BI KỊCH VÀ XUNG ĐỘT TRONG LỜI ĐỘC THOẠI CỦA HÂM-LÉT</h3>
+        <p class="reveal-scale">Xung đột nội tâm sâu sắc (con người với chính mình). Hâm-lét tranh đấu giữa muốn hành động (trả thù, đáp lại bất công) và sợ hậu quả/không chắc chắn (nỗi sợ về “cái chết kia, cái điều khó biết” — the unknown). Đây là xung đột nội tâm điển hình của bi kịch: nhân vật biết điều phải làm nhưng bị chính nỗi sợ, lý trí, và phân vân kìm lại.</p>
+        <p class="reveal-scale">Bi kịch triết lý — khủng hoảng ý nghĩa. Lời độc thoại đặt câu hỏi căn bản: đời sống có đáng sống không? Cái “to be or not to be” mở ra cuộc khủng hoảng về giá trị, ý nghĩa, lẽ sống — đặc trưng bi kịch cổ điển nhưng đồng thời rất hiện đại về mặt tư tưởng.</p>
+        <p class="reveal-scale">Xung đột đạo đức và trách nhiệm. Hâm-lét biết mình phải hành xử theo chuẩn mực danh dự, công lý; nhưng hành động đó có giá phải trả (linh hồn, đạo đức, hậu quả xã hội). Mâu thuẫn giữa bổn phận cá nhân và hệ quả khiến bi kịch trở nên nặng nề.</p>
+        <p class="reveal-scale">Ngôn ngữ và cấu tứ tăng cường tính bi kịch. Hình ảnh đối lập, câu hỏi tu từ, nhịp điệu suy tư — tất cả làm nổi bật bế tắc: ẩn dụ về “biển đau khổ”, “mũi giáo đau” hay “ngủ yên trong cát phép màu” — giọng điệu vừa trầm tư, vừa dằn vặt.</p>
+        <p class="reveal-scale">Kết cấu hành động bị trì hoãn (tragic delay). Hâm-lét suy nghĩ nhiều hơn hành động — chính sự trì hoãn này tạo ra bi kịch: cơ hội trôi, hệ lụy chồng chất, và cuối cùng dẫn tới thảm họa.</p>
+
+        <h3 class="text-2xl font-[Cinzel] mt-6 mb-4 text-[#aab0ff] reveal-scale">2. TRONG XÃ HỘI HIỆN ĐẠI, XUNG ĐỘT ĐÓ CÓ CÒN TỒN TẠI KHÔNG?</h3>
+        <p class="reveal-scale">Có — và rất nhiều dáng vẻ biến thể. Xung đột nội tâm giữa hành động và sợ hãi, khủng hoảng ý nghĩa, mâu thuẫn đạo đức không phải chuyện của thế kỷ 17 — chúng vẫn là vấn đề cốt lõi của cuộc sống con người ngày nay. Một vài minh họa:</p>
+        <p class="reveal-scale">Khủng hoảng nghề nghiệp, chọn lựa cuộc đời. Giữa an toàn (việc ổn định, thu nhập) và đam mê (rủi ro, đổi đời) nhiều người phân vân không khác Hâm-lét: làm sao dám “nhảy” khi không biết kết quả?</p>
+        <p class="reveal-scale">Vấn đề tinh thần — trầm cảm, lo âu, phân vân quyết định. Nỗi sợ “không biết điều gì sau cái chết” chuyển thành sợ tương lai, sợ thất bại; tranh đấu nội tâm biểu hiện dưới dạng khủng hoảng tâm lý.</p>
+        <p class="reveal-scale">Xung đột đạo đức trong công việc/chính trị. Người đối diện với tham nhũng, bất công, hay mâu thuẫn giữa làm điều đúng và giữ vị thế/miếng cơm — họ cân nhắc như Hâm-lét: hành động có thể mang lại hậu quả nguy hiểm.</p>
+        <p class="reveal-scale">Paralysis by analysis (nghẽn vì phân tích). Thông tin quá tải, lựa chọn quá nhiều khiến con người chần chờ — hiện tượng “suy nghĩ quá nhiều, hành động quá ít” là bản sao hiện đại của trì hoãn bi kịch.</p>
+        <p class="reveal-scale">Khác biệt: bối cảnh hiện đại có mạng xã hội, pháp luật, hệ thống y tế tâm thần, quyền con người — nên kết cục có thể khác: có hỗ trợ, có lựa chọn an toàn hơn (tư vấn, pháp lý), nhưng áp lực xã hội và tốc độ thay đổi lại làm xung đột đa dạng hơn.</p>
+
+        <h3 class="text-2xl font-[Cinzel] mt-6 mb-4 text-[#aab0ff] reveal-scale">3. KẾT LUẬN NGẮN GỌN</h3>
+        <p class="reveal-scale">Xung đột trong lời độc thoại của Hâm-lét — giữa hành động và nỗi sợ, giữa ý nghĩa và tuyệt vọng — là một xung đột nhân loại. Hình thức và hoàn cảnh thay đổi theo thời đại, nhưng bản chất vẫn hiển hiện trong các quyết định lớn nhỏ của đời người hôm nay. Nói nôm na: Hâm-lét vẫn sống trong chúng ta — chỉ mặc quần áo hiện đại hơn.</p>
+    </section>
+
+    <!-- Section 9: Kết luận -->
+<section id="conclusion" class="conclusion-section text-center py-4">
+  <h1 class="reveal glow-rise">KẾT LUẬN</h1>
+  <p class="reveal glow-rise text-xl mt-8 max-w-4xl mx-auto">
+    Hamlet là biểu tượng của con người thời Phục Hưng: thức tỉnh ý thức cá nhân, khát vọng công lý, 
+    nhưng bế tắc trong thực tại tăm tối. Xung đột của chàng vẫn tồn tại trong xã hội hiện đại dưới nhiều hình thức.
+  </p>
+  
+</section>
+
+<!-- Section 10: Sẵn sàng củng cố kiến thức chưa? -->
+<section id="revision" class="final-section text-center py-4">
+  <p class="text-3xl bold text-[#cdd0ff] mb-6 glow-rise">
+    Sẵn sàng củng cố kiến thức chưa?
+  </p>
+
+  <p class="text-lg text-gray-300 mb-6 reveal-rotate max-w-3xl mx-auto">
+    <b>Đọc xong hết rồi chắc hiểu kha khá rồi nhỉ?  
+    Muốn thử sức một chút bằng trò chơi nhỏ để củng cố lại không?</b>
+    </p>
+  <a href="https://youtu.be/dQw4w9WgXcQ?si=bjhD6Oe0YJU93XNr" 
+   class="inline-block px-6 py-3 bg-[#cdd0ff] text-[#0a0a0a] font-semibold rounded-lg 
+          hover:bg-[#e0e3ff] hover:scale-110 transition-transform duration-300 reveal-slide-left">
+   Đi đến trang khác
+</a>
+
+</a>
+</section>
+
+    <script>
+        // --- LOGIC REVEAL ON SCROLL (Giữ nguyên và mở rộng cho các class mới) ---
+        const reveals = document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-scale, .reveal-fade, .reveal-rotate');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                } else {
+                    entry.target.classList.remove('visible'); // Rút lại khi out of view
+                }
+            });
+        }, { threshold: 0.2 });
+
+        reveals.forEach(el => observer.observe(el));
+        
+        // --- LOGIC DIALOGUE BOX ---
+        const messagesData = [
+            // Dò xét (Bắt đầu)
+            { speaker: 'Ophelia', text: 'Chàng Hamlet, những lời nguyện của chàng vẫn mãi trong tôi, và tôi muốn trả lại những vật chứng tình yêu mà chàng đã trao cho tôi.' },
+            
+            // Phản ứng giằng xé của Hamlet
+            { speaker: 'Hamlet', text: 'Ta ư? Ta không bao giờ trao gì cả.', delay: 2000 },
+            { speaker: 'Ophelia', text: 'Chàng biết rõ là chàng có mà, cùng với những lời lẽ ngọt ngào làm phong phú thêm giá trị của món quà. Giờ đây sự ngọt ngào ấy đã đi đâu mất, xin chàng hãy nhận lại.', delay: 4000 },
+            
+            // Hamlet bi quan về sắc đẹp
+            { speaker: 'Hamlet', text: 'Ha! Sắc đẹp có trung thực được không, khi nó đi đôi với đức hạnh?', delay: 6000 },
+            { speaker: 'Ophelia', text: 'Sắc đẹp nào có mối liên hệ nào với sự gian dối đó?', delay: 9000 },
+            
+            // Hamlet than thở và phủ nhận tình yêu
+            { speaker: 'Hamlet', text: 'Ta đã từng yêu nàng một lần, nhưng ta cũng chưa bao giờ yêu nàng.', delay: 11000 },
+            { speaker: 'Ophelia', text: '(Thực sự bị tổn thương) Chàng càng làm tôi cảm giác bị lừa dối nặng nề.', delay: 13000 },
+            
+            // Kết thúc bi kịch
+            { speaker: 'Hamlet', text: 'Chúng ta đều là những kẻ khốn khổ. Cầu Chúa cho nàng được vào tu viện. Còn ta, ta chỉ muốn điên loạn...', delay: 15000 },
+        ];
+
+        const messagesContainer = document.getElementById('messages');
+        const typingBox = document.getElementById('typing-box');
+        let messageIndex = 0;
+
+        // Hàm tạo HTML cho tin nhắn
+        function createMessageElement(speaker, text) {
+            const isOphelia = speaker === 'Ophelia';
+            const className = isOphelia ? 'ophelia' : 'hamlet';
+            
+            // Vui lòng thay thế các URL placeholder này bằng đường link ảnh thực của bạn:
+            const hamletAvatarUrl = 'https://cdn.britannica.com/70/6770-004-BF3E738B/Edwin-Booth-title-role-Hamlet.jpg'; // ĐƯỜNG LINK ẢNH AVATAR HAMLET CỦA BẠN
+            const opheliaAvatarUrl = 'https://www.lookandlearn.com/history-images/preview/XD/XD160/XD160290_Ophelia-a-character-in-Hamlet.jpg'; // ĐƯỜNG LINK ẢNH AVATAR OPHELIA CỦA BẠN
+
+            const avatarSrc = isOphelia 
+                ? opheliaAvatarUrl 
+                : hamletAvatarUrl;
+            
+            const element = document.createElement('div');
+            element.classList.add('message', className);
+            element.innerHTML = `
+                <img class="avatar" src="${avatarSrc}" alt="${speaker} Avatar" onerror="this.onerror=null;this.src='https://placehold.co/50x50/333/FFF?text=Error';">
+                <div class="bubble">
+                    <span class="font-bold text-sm block mb-1">${speaker}:</span>
+                    ${text}
+                </div>
+            `;
+            return element;
+        }
+
+        // Hàm hiển thị tin nhắn tiếp theo
+        function showNextMessage() {
+            if (messageIndex < messagesData.length) {
+                const message = messagesData[messageIndex];
+                
+                // 1. Hiển thị "Đang soạn tin..."
+                if (message.speaker === 'Ophelia') {
+                    typingBox.classList.add('visible');
+                } else {
+                    typingBox.classList.remove('visible');
+                }
+
+                // 2. Độ trễ trước khi hiển thị tin nhắn
+                setTimeout(() => {
+                    const msgElement = createMessageElement(message.speaker, message.text);
+                    messagesContainer.appendChild(msgElement);
+                    // Cuộn xuống cuối
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    // Ẩn "Đang soạn tin..." sau khi tin nhắn Hamlet xuất hiện
+                    if (message.speaker === 'Hamlet') {
+                        typingBox.classList.remove('visible');
+                    }
+                    
+                    messageIndex++;
+                    // 3. Gọi tin nhắn tiếp theo
+                    setTimeout(showNextMessage, 2000); // 2 giây trễ giữa các tin nhắn
+                }, message.delay || 750);
+            } else {
+                // Kết thúc hội thoại
+                typingBox.innerHTML = '--- Màn đối thoại kết thúc ---';
+                typingBox.classList.add('visible');
+            }
+        }
+
+        // Bắt đầu chuỗi hội thoại khi DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Thiết lập trễ 2 giây sau khi trang load xong
+            setTimeout(showNextMessage, 2000); 
+        });
+        
+    </script>
+
+</body>
+</html>
